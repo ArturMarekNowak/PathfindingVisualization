@@ -3,10 +3,18 @@
 wxBEGIN_EVENT_TABLE(cMain, wxMDIParentFrame)
 EVT_MENU(10001, cMain::OnMenuReset)
 EVT_MENU(10002, cMain::OnMenuExit)
+EVT_LEFT_DOWN(cMain::OnMouseClick)
 wxEND_EVENT_TABLE()
 
 cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization with WxWidgets", wxPoint(600, 300), wxSize(600, 600))
 {
+	wxPanel* p = new wxPanel(this);
+  	//p->SetBackgroundColour(*wxRED);
+	
+	p->Connect( wxID_ANY,
+        wxEVT_LEFT_DOWN,
+        wxMouseEventHandler(cMain::OnMouseClick),NULL,this );
+
 	//Adds new menu bar
 	m_MenuBar = new wxMenuBar();
 	this->SetMenuBar(m_MenuBar);
@@ -48,7 +56,7 @@ void cMain::OnMenuReset(wxCommandEvent & evt)
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
 {
-
+	 evt.GetId() - 10010;
 }
 
 
@@ -56,4 +64,10 @@ void cMain::OnMenuExit(wxCommandEvent & evt)
 {
 	Close();
 	evt.Skip();
+}
+
+void cMain::OnMouseClick(wxMouseEvent & evt)
+{
+	std::cout << "X: " << evt.GetX() << "Y: " << evt.GetY() << std::endl;
+	
 }

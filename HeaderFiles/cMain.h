@@ -16,6 +16,8 @@ class cMain : public wxMDIParentFrame
 		void OnMenuExit(wxCommandEvent &evt);
 		
 		void OnButtonClick(wxCommandEvent &evt);
+		
+		void OnMouseClick(wxMouseEvent &evt);
 
 		wxDECLARE_EVENT_TABLE();	
 };
