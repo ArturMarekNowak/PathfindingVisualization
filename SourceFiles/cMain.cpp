@@ -33,8 +33,6 @@ cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization 
 	}
 	m_ToolBar->Realize();
 
-	m_Grid = new wxGrid(this, -1, wxPoint(0, 0), wxSize(400, 400));
-	m_Grid->Create(100, 10);
 }
 
 
