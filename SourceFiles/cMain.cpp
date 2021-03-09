@@ -1,19 +1,30 @@
 #include "cMain.h"
+#include "wx/dcclient.h"
+#include "wx/dcmemory.h"
+#include "wx/dcbuffer.h"
+
+#define pixelOffset 5 * m_gridDim 
+#define blockOffset 5
 
 wxBEGIN_EVENT_TABLE(cMain, wxMDIParentFrame)
 EVT_MENU(10001, cMain::OnMenuReset)
 EVT_MENU(10002, cMain::OnMenuExit)
+EVT_PAINT(cMain::OnPaint)
 EVT_LEFT_DOWN(cMain::OnMouseClick)
 wxEND_EVENT_TABLE()
 
-cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization with WxWidgets", wxPoint(600, 300), wxSize(610, 610))
+int cMain::m_colour = 0;
+
+cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization with WxWidgets", wxPoint(600, 300), wxSize(610, 710))
 {
 	wxPanel* p = new wxPanel(this);
   	//p->SetBackgroundColour(*wxRED);
 	
+	SetBackgroundStyle(wxBG_STYLE_PAINT);
+
 	p->Connect( wxID_ANY,
         wxEVT_LEFT_DOWN,
-        wxMouseEventHandler(cMain::OnMouseClick),NULL,this );
+        wxMouseEventHandler(cMain::OnMouseClick), NULL, this);
 
 	//Adds new menu bar
 	m_MenuBar = new wxMenuBar();
@@ -51,12 +62,14 @@ cMain::~cMain()
 
 void cMain::OnMenuReset(wxCommandEvent & evt)
 {
-
+	std::cout << cMain::GetColour() << std::endl;
 }
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
 {
-	 evt.GetId() - 10010;
+	int foo = evt.GetId() - 10010;
+	cMain::SetColour(foo);
+	std::cout << cMain::GetColour() << std::endl;
 }
 
 
@@ -68,6 +81,83 @@ void cMain::OnMenuExit(wxCommandEvent & evt)
 
 void cMain::OnMouseClick(wxMouseEvent & evt)
 {
-	std::cout << "X: " << evt.GetX() << " Y: " << evt.GetY() << std::endl;
-		
+	int xCoord = evt.GetX() / m_pixelSize - blockOffset;
+	int yCoord = evt.GetY() / m_pixelSize - blockOffset;
+	std::cout << "X: " << xCoord << " Y: " << yCoord << " ID: " << cMain::GetColour() << std::endl;
+	cMain::SetArray(xCoord, yCoord, cMain::GetColour());
+	this->Refresh(false);
+}
+
+void cMain::OnDraw(wxDC & dc)
+{
+	dc.Clear();
+
+	wxBrush brush = dc.GetBrush();
+	wxPen pen = dc.GetPen();
+
+	pen.SetStyle(wxPENSTYLE_SOLID);
+	pen.SetColour(wxColour(255, 255, 255));
+
+	dc.SetPen(pen);
+
+	for(int i = 0; i < m_gridDim; i++)
+		for(int j = 0; j < m_gridDim; j++)
+		{
+			std::cout << cMain::GetArray(i, j);
+			if(cMain::GetArray(i, j) == 1)
+			{
+				brush.SetColour(wxColour(0, 0, 255));
+				brush.SetStyle(wxBRUSHSTYLE_SOLID);
+			}
+			else if(cMain::GetArray(i, j) == 2)
+			{
+				brush.SetColour(wxColour(0, 255, 0));
+				brush.SetStyle(wxBRUSHSTYLE_SOLID);
+			}
+			else if(cMain::GetArray(i, j) == 3)
+			{
+				brush.SetColour(wxColour(255, 0, 0));
+				brush.SetStyle(wxBRUSHSTYLE_SOLID);
+			}
+			else
+			{
+				brush.SetColour(wxColour(0, 0, 0));
+				brush.SetStyle(wxBRUSHSTYLE_SOLID);
+			}
+
+
+			dc.SetBrush(brush);
+			dc.DrawRectangle(i * m_gridDim + pixelOffset, j * m_gridDim + pixelOffset, m_pixelSize, m_pixelSize);
+		}
+
+}
+
+void cMain::OnPaint(wxPaintEvent & evt)
+{
+	wxBufferedPaintDC dc(this);
+
+	this->PrepareDC(dc);
+	this->OnDraw(dc);
+}
+
+//Setters
+
+void cMain::SetColour(int & c)
+{
+	cMain::m_colour = c;
+}
+
+void cMain::SetArray(int row, int col, int c)
+{
+	cMain::m_arrayOfColours[row][col] = c;
+}
+
+int cMain::GetArray(int r, int c)
+{
+	return cMain::m_arrayOfColours[r][c];
+}
+
+int cMain::GetColour()
+{
+	return cMain::m_colour;
 }
