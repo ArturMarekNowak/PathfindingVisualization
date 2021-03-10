@@ -27,6 +27,9 @@ Pair cMain::m_dst = std::make_pair(19, 19);
 
 cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization with WxWidgets", wxPoint(600, 300), wxSize(610, 710))
 {
+	cMain::m_arrayOfColours[0][0] = 3;
+	cMain::m_arrayOfColours[19][19] = 2;
+	
 	wxPanel* p = new wxPanel(this);
   	//p->SetBackgroundColour(*wxRED);
 	
@@ -132,10 +135,16 @@ void cMain::OnMouseClick(wxMouseEvent & evt)
 	{
 		cMain::SetArray(xCoord, yCoord, cMain::GetColour());
 		if(cMain::GetColour() == 3)
+		{
+			cMain::SetArray(m_src.first, m_src.second, 0);
 			cMain::SetSrc(xCoord, yCoord);
-
+		}
+		
 		if(cMain::GetColour() == 2)
+		{
+			cMain::SetArray(m_dst.first, m_dst.second, 0);	
 			cMain::SetDst(xCoord, yCoord);
+		}
 	}
 	this->Refresh(false);
 }
