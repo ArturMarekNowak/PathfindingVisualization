@@ -1,6 +1,6 @@
 .PHONY: all run compile clean
 IDIR=HeaderFiles
-SRC=SourceFiles/cMain.cpp SourceFiles/Pathfinding.cpp
+SRC=SourceFiles/cMain.cpp SourceFiles/Pathfinding.cpp SourceFiles/Astar.cpp
 CC=g++
 CFLAGS=$(SRC) -I$(IDIR) `wx-config --libs` `wx-config --cxxflags` -Wall -g
 

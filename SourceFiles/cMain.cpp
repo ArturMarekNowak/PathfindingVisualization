@@ -1,4 +1,5 @@
 #include "cMain.h"
+#include "Astar.h"
 #include "wx/dcclient.h"
 #include "wx/dcmemory.h"
 #include "wx/dcbuffer.h"
@@ -62,14 +63,19 @@ cMain::~cMain()
 
 void cMain::OnMenuReset(wxCommandEvent & evt)
 {
-	std::cout << cMain::GetColour() << std::endl;
+	//std::cout << cMain::GetColour() << std::endl;
 }
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
 {
 	int foo = evt.GetId() - 10010;
 	cMain::SetColour(foo);
-	std::cout << cMain::GetColour() << std::endl;
+	if(foo == 4)
+	{	
+		//Pair src = make_pair()
+		//Pair dest = maek_pair()
+		//aStarSearch(cMain m_GetWholeArray, src, dest);
+	}
 }
 
 
@@ -84,7 +90,8 @@ void cMain::OnMouseClick(wxMouseEvent & evt)
 	int xCoord = evt.GetX() / m_pixelSize - blockOffset;
 	int yCoord = evt.GetY() / m_pixelSize - blockOffset;
 	std::cout << "X: " << xCoord << " Y: " << yCoord << " ID: " << cMain::GetColour() << std::endl;
-	cMain::SetArray(xCoord, yCoord, cMain::GetColour());
+	if(xCoord >= 0 && xCoord < m_gridDim && yCoord >= 0 && yCoord < m_gridDim)
+		cMain::SetArray(xCoord, yCoord, cMain::GetColour());
 	this->Refresh(false);
 }
 
@@ -103,25 +110,29 @@ void cMain::OnDraw(wxDC & dc)
 	for(int i = 0; i < m_gridDim; i++)
 		for(int j = 0; j < m_gridDim; j++)
 		{
-			std::cout << cMain::GetArray(i, j);
+			//std::cout << cMain::GetArray(i, j);
+			
+			//Starting Point
 			if(cMain::GetArray(i, j) == 1)
-			{
-				brush.SetColour(wxColour(0, 0, 255));
-				brush.SetStyle(wxBRUSHSTYLE_SOLID);
-			}
-			else if(cMain::GetArray(i, j) == 2)
 			{
 				brush.SetColour(wxColour(0, 255, 0));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
-			else if(cMain::GetArray(i, j) == 3)
+			//Ending Point
+			else if(cMain::GetArray(i, j) == 2)
 			{
 				brush.SetColour(wxColour(255, 0, 0));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
-			else
+			//Obstacle
+			else if(cMain::GetArray(i, j) == 3)
 			{
 				brush.SetColour(wxColour(0, 0, 0));
+				brush.SetStyle(wxBRUSHSTYLE_SOLID);
+			}
+			else
+			{
+				brush.SetColour(wxColour(255, 229, 124));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
 
@@ -140,7 +151,7 @@ void cMain::OnPaint(wxPaintEvent & evt)
 	this->OnDraw(dc);
 }
 
-//Setters
+//Setters and Getters
 
 void cMain::SetColour(int & c)
 {
