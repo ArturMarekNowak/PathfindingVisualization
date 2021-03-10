@@ -15,6 +15,12 @@ This projects utilizes wxWidgets library for creation of GUI. The user can pick 
 ## Screenshots
 There will be a yt link here!
 
+![Alt text](https://i.ibb.co/wgXrh2S/first.png "Choosing ending and starting points")
+
+![Alt text](https://i.ibb.co/MNM4zhN/second.png "Placing obstacles")
+
+![Alt text](https://i.ibb.co/wsvYhr5/third.png "After running the algorithm")
+
 ## Technologies
 * wxWidgets 3.0.5
 
