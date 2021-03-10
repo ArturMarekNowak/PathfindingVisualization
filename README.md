@@ -20,7 +20,9 @@ There will be a yt link here!
 
 ## Setup
 Provided you have wxWidgets installed... 
+
 `make all` 
+
 ...should do the rest
 
 ## Features
