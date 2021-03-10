@@ -22,10 +22,10 @@ bool isValid(int row, int col)
 bool isUnBlocked(int grid[][COL], int row, int col)
 {
     // Returns true if the cell is not blocked else false
-    if (grid[row][col] == 1)
-        return (true);
-    else
+    if (grid[row][col] == 1) //<------------------------------------------CHANGED HERE
         return (false);
+    else
+        return (true);
 }
  
 // A Utility Function to check whether destination cell has
@@ -71,6 +71,9 @@ void tracePath(cell cellDetails[][COL], Pair dest)
         pair<int, int> p = Path.top();
         Path.pop();
         printf("-> (%d,%d) ", p.first, p.second);
+    
+
+
     }
  
     return;
@@ -599,8 +602,8 @@ void aStarSearch(int grid[][COL], Pair src, Pair dest)
 int main()
 {
     //Description of the Grid-
-    // 1--> The cell is not blocked
-    // 0--> The cell is blocked    
+    // 0--> The cell is not blocked
+    // 1--> The cell is blocked    
     int grid[ROW][COL]
         = { { 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
             { 1, 1, 1, 0, 1, 1, 1, 0, 1, 1 },

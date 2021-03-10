@@ -1,5 +1,4 @@
 #include "cMain.h"
-#include "Astar.h"
 #include "wx/dcclient.h"
 #include "wx/dcmemory.h"
 #include "wx/dcbuffer.h"
@@ -15,6 +14,9 @@ EVT_LEFT_DOWN(cMain::OnMouseClick)
 wxEND_EVENT_TABLE()
 
 int cMain::m_colour = 0;
+int cMain::m_arrayOfColours[20][20] = {0};
+Pair cMain::m_src = make_pair(0, 0);
+Pair cMain::m_dst = make_pair(19, 19);
 
 cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization with WxWidgets", wxPoint(600, 300), wxSize(610, 710))
 {
@@ -63,18 +65,43 @@ cMain::~cMain()
 
 void cMain::OnMenuReset(wxCommandEvent & evt)
 {
-	//std::cout << cMain::GetColour() << std::endl;
+	for(int i = 0; i < m_gridDim; i++)
+	{
+		for(int j = 0; j < m_gridDim; j++)
+		{
+			std::cout << cMain::GetArray(i, j) << " ";
+		}
+		std::cout << std::endl;
+	}
 }
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
 {
 	int foo = evt.GetId() - 10010;
-	cMain::SetColour(foo);
+	
+	if(foo == 1)
+	{
+		int three = 3;
+		cMain::SetColour(three);
+	}
+
+	if(foo == 2)
+	{
+		cMain::SetColour(foo);
+
+	}
+	
+	if(foo == 3)
+	{
+		int one = 1;
+		cMain::SetColour(one);
+	}
+
 	if(foo == 4)
-	{	
-		//Pair src = make_pair()
-		//Pair dest = maek_pair()
-		//aStarSearch(cMain m_GetWholeArray, src, dest);
+	{
+		Pair src = cMain::m_src;
+		Pair dest = cMain::m_dst;
+		aStarSearch(cMain::m_arrayOfColours, src, dest);
 	}
 }
 
@@ -91,13 +118,20 @@ void cMain::OnMouseClick(wxMouseEvent & evt)
 	int yCoord = evt.GetY() / m_pixelSize - blockOffset;
 	std::cout << "X: " << xCoord << " Y: " << yCoord << " ID: " << cMain::GetColour() << std::endl;
 	if(xCoord >= 0 && xCoord < m_gridDim && yCoord >= 0 && yCoord < m_gridDim)
+	{
 		cMain::SetArray(xCoord, yCoord, cMain::GetColour());
+		if(cMain::GetColour() == 3)
+			cMain::SetSrc(xCoord, yCoord);
+
+		if(cMain::GetColour() == 2)
+			cMain::SetDst(xCoord, yCoord);
+	}
 	this->Refresh(false);
 }
 
 void cMain::OnDraw(wxDC & dc)
 {
-	dc.Clear();
+	dc.Clear();	
 
 	wxBrush brush = dc.GetBrush();
 	wxPen pen = dc.GetPen();
@@ -112,10 +146,10 @@ void cMain::OnDraw(wxDC & dc)
 		{
 			//std::cout << cMain::GetArray(i, j);
 			
-			//Starting Point
+			//Obstacle
 			if(cMain::GetArray(i, j) == 1)
 			{
-				brush.SetColour(wxColour(0, 255, 0));
+				brush.SetColour(wxColour(0, 0, 0));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
 			//Ending Point
@@ -124,10 +158,10 @@ void cMain::OnDraw(wxDC & dc)
 				brush.SetColour(wxColour(255, 0, 0));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
-			//Obstacle
+			//Starting Point
 			else if(cMain::GetArray(i, j) == 3)
 			{
-				brush.SetColour(wxColour(0, 0, 0));
+				brush.SetColour(wxColour(0, 255, 0));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
 			else
@@ -152,6 +186,15 @@ void cMain::OnPaint(wxPaintEvent & evt)
 }
 
 //Setters and Getters
+void cMain::SetSrc(int i, int j)
+{
+	cMain::m_src = make_pair(i, j);
+}
+
+void cMain::SetDst(int i, int j)
+{
+	cMain::m_dst = make_pair(i, j);
+}
 
 void cMain::SetColour(int & c)
 {
@@ -171,4 +214,14 @@ int cMain::GetArray(int r, int c)
 int cMain::GetColour()
 {
 	return cMain::m_colour;
+}
+
+Pair cMain::GetSrc()
+{
+	return m_src;
+}
+
+Pair cMain::GetDst()
+{
+	return m_dst;
 }
