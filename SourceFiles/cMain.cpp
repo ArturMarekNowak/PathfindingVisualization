@@ -84,13 +84,30 @@ void cMain::OnMenuReset(wxCommandEvent & evt)
 	}
 	cMain::m_src = std::make_pair(0, 0);
 	cMain::m_dst = std::make_pair(19, 19);
+	cMain::m_arrayOfColours[0][0] = 3;
+	cMain::m_arrayOfColours[19][19] = 2;
 	this->Refresh();
 }
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
 {
 	int foo = evt.GetId() - 10010;
+
+	if(foo == 0)
+	{
 	
+		for(int i = 0; i < m_gridDim; i++)
+			for(int j = 0; j < m_gridDim; j++)
+			{
+				cMain::SetArray(i, j, 0); 
+			}
+		cMain::m_src = std::make_pair(0, 0);
+		cMain::m_dst = std::make_pair(19, 19);
+		cMain::m_arrayOfColours[0][0] = 3;
+		cMain::m_arrayOfColours[19][19] = 2;
+	}
+
+
 	if(foo == 1)
 	{
 		int three = 3;
