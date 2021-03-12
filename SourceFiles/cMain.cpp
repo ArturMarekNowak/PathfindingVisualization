@@ -3,7 +3,8 @@
 #include "wx/dcmemory.h"
 #include "wx/dcbuffer.h"
 #include <bits/stdc++.h>
-
+#include <thread>
+#include <chrono>
 
 #define pixelOffset 5 * m_gridDim 
 #define blockOffset 5
@@ -11,13 +12,13 @@
 #define COL 20
 #define ROW 20
 
-
 wxBEGIN_EVENT_TABLE(cMain, wxMDIParentFrame)
 EVT_MENU(10001, cMain::OnMenuReset)
 EVT_MENU(10002, cMain::OnMenuExit)
 EVT_BUTTON(wxID_ANY, cMain::OnButtonClick)
 EVT_PAINT(cMain::OnPaint)
 EVT_LEFT_DOWN(cMain::OnMouseClick)
+
 wxEND_EVENT_TABLE()
 
 int cMain::m_colour = 0;
@@ -35,9 +36,7 @@ cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization 
 	
 	SetBackgroundStyle(wxBG_STYLE_PAINT);
 
-	p->Connect( wxID_ANY,
-        wxEVT_LEFT_DOWN,
-        wxMouseEventHandler(cMain::OnMouseClick), NULL, this);
+	p->Connect( wxID_ANY, wxEVT_LEFT_DOWN, wxMouseEventHandler(cMain::OnMouseClick), NULL, this);
 
 	//Adds new menu bar
 	m_MenuBar = new wxMenuBar();
@@ -86,7 +85,7 @@ void cMain::OnMenuReset(wxCommandEvent & evt)
 	cMain::m_dst = std::make_pair(19, 19);
 	cMain::m_arrayOfColours[0][0] = 3;
 	cMain::m_arrayOfColours[19][19] = 2;
-	this->Refresh();
+	//this->Refresh();
 }
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
@@ -133,7 +132,7 @@ void cMain::OnButtonClick(wxCommandEvent & evt)
 		aStarSearch(cMain::m_arrayOfColours, src, dest);
 	}
 	//wxWindow::Refresh();
-	this->Refresh();
+	this->Refresh(false);
 }
 
 
@@ -147,7 +146,7 @@ void cMain::OnMouseClick(wxMouseEvent & evt)
 {
 	int xCoord = evt.GetX() / m_pixelSize - blockOffset;
 	int yCoord = evt.GetY() / m_pixelSize - blockOffset;
-	std::cout << "X: " << xCoord << " Y: " << yCoord << " ID: " << cMain::GetColour() << std::endl;
+	//std::cout << "X: " << xCoord << " Y: " << yCoord << " ID: " << cMain::GetColour() << std::endl;
 	if(xCoord >= 0 && xCoord < m_gridDim && yCoord >= 0 && yCoord < m_gridDim)
 	{
 		cMain::SetArray(xCoord, yCoord, cMain::GetColour());
@@ -182,7 +181,6 @@ void cMain::OnDraw(wxDC & dc)
 		for(int j = 0; j < m_gridDim; j++)
 		{
 			//std::cout << cMain::GetArray(i, j);
-			
 			//Obstacle
 			if(cMain::GetArray(i, j) == 1)
 			{
@@ -203,15 +201,20 @@ void cMain::OnDraw(wxDC & dc)
 			}
 			else if(cMain::GetArray(i, j) == 10)
 			{
+				
 				brush.SetColour(wxColour(0, 255, 0));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
+			}
+			else if(cMain::GetArray(i, j) == 11)
+			{
+				brush.SetColour(wxColour(208, 240, 192));
+                                brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
 			else
 			{
 				brush.SetColour(wxColour(255, 229, 124));
 				brush.SetStyle(wxBRUSHSTYLE_SOLID);
 			}
-
 
 			dc.SetBrush(brush);
 			dc.DrawRectangle(i * m_gridDim + pixelOffset, j * m_gridDim + pixelOffset, m_pixelSize, m_pixelSize);
@@ -337,9 +340,8 @@ void cMain::tracePath(cell cellDetails[][COL], Pair dest)
         Path.pop();
         printf("-> (%d,%d) ", p.first, p.second);
 	cMain::SetArray(p.first, p.second, 10);
-    
-
-
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	this->Refresh(false);
     }
  
     return;
@@ -350,6 +352,7 @@ void cMain::tracePath(cell cellDetails[][COL], Pair dest)
 // to A* Search Algorithm
 void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
 {
+
     // If the source is out of range
     if (isValid(src.first, src.second) == false) {
         printf("Source is invalid\n");
@@ -464,7 +467,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i - 1, j) == true) {
-            // If the destination cell is the same as the
+ 
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i - 1, j, dest) == true) {
                 // Set the Parent of the destination cell
@@ -478,10 +482,12 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
-            else if (closedList[i - 1][j] == false
-                     && isUnBlocked(grid, i - 1, j)
-                            == true) {
-                gNew = cellDetails[i][j].g + 1.0;
+            else if (closedList[i - 1][j] == false && isUnBlocked(grid, i - 1, j) == true) {
+		
+		cMain::SetArray(i - 1, j, 11);
+		//std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		this->Refresh(false);
+		gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i - 1, j, dest);
                 fNew = gNew + hNew;
  
@@ -512,7 +518,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i + 1, j) == true) {
-            // If the destination cell is the same as the
+             
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i + 1, j, dest) == true) {
                 // Set the Parent of the destination cell
@@ -526,10 +533,10 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
-            else if (closedList[i + 1][j] == false
-                     && isUnBlocked(grid, i + 1, j)
-                            == true) {
-                gNew = cellDetails[i][j].g + 1.0;
+            else if (closedList[i + 1][j] == false && isUnBlocked(grid, i + 1, j) == true) {
+
+		cMain::SetArray(i + 1, j, 11);    
+		gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i + 1, j, dest);
                 fNew = gNew + hNew;
  
@@ -559,7 +566,9 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i, j + 1) == true) {
-            // If the destination cell is the same as the
+               
+
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i, j + 1, dest) == true) {
                 // Set the Parent of the destination cell
@@ -578,7 +587,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
                      && isUnBlocked(grid, i, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.0;
-                hNew = calculateHValue(i, j + 1, dest);
+	    	cMain::SetArray(i, j + 1, 11);		
+		hNew = calculateHValue(i, j + 1, dest);
                 fNew = gNew + hNew;
  
                 // If it isn’t on the open list, add it to
@@ -608,7 +618,9 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i, j - 1) == true) {
-            // If the destination cell is the same as the
+            
+ 
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i, j - 1, dest) == true) {
                 // Set the Parent of the destination cell
@@ -627,7 +639,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
                      && isUnBlocked(grid, i, j - 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.0;
-                hNew = calculateHValue(i, j - 1, dest);
+	   	cMain::SetArray(i, j - 1, 11);		
+		hNew = calculateHValue(i, j - 1, dest);
                 fNew = gNew + hNew;
  
                 // If it isn’t on the open list, add it to
@@ -658,7 +671,10 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i - 1, j + 1) == true) {
-            // If the destination cell is the same as the
+            
+ 
+
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i - 1, j + 1, dest) == true) {
                 // Set the Parent of the destination cell
@@ -677,7 +693,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
                      && isUnBlocked(grid, i - 1, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
-                hNew = calculateHValue(i - 1, j + 1, dest);
+		cMain::SetArray(i - 1, j + 1, 11);		
+		hNew = calculateHValue(i - 1, j + 1, dest);
                 fNew = gNew + hNew;
  
                 // If it isn’t on the open list, add it to
@@ -708,7 +725,9 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i - 1, j - 1) == true) {
-            // If the destination cell is the same as the
+            
+		
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i - 1, j - 1, dest) == true) {
                 // Set the Parent of the destination cell
@@ -725,10 +744,11 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // Else do the following
             else if (closedList[i - 1][j - 1] == false
                      && isUnBlocked(grid, i - 1, j - 1)
-                            == true) {
+           == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i - 1, j - 1, dest);
-                fNew = gNew + hNew;
+	    	cMain::SetArray(i - 1, j - 1, 11);		
+		fNew = gNew + hNew;
  
                 // If it isn’t on the open list, add it to
                 // the open list. Make the current square
@@ -757,7 +777,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i + 1, j + 1) == true) {
-            // If the destination cell is the same as the
+ 
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i + 1, j + 1, dest) == true) {
                 // Set the Parent of the destination cell
@@ -777,8 +798,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i + 1, j + 1, dest);
-                fNew = gNew + hNew;
- 
+		fNew = gNew + hNew;
+            	cMain::SetArray(i + 1, j + 1, 11);		
                 // If it isn’t on the open list, add it to
                 // the open list. Make the current square
                 // the parent of this square. Record the
@@ -807,7 +828,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
  
         // Only process this cell if this is a valid one
         if (isValid(i + 1, j - 1) == true) {
-            // If the destination cell is the same as the
+
+	    // If the destination cell is the same as the
             // current successor
             if (isDestination(i + 1, j - 1, dest) == true) {
                 // Set the Parent of the destination cell
@@ -828,7 +850,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i + 1, j - 1, dest);
                 fNew = gNew + hNew;
- 
+		cMain::SetArray(i + 1, j - 1, 11);
                 // If it isn’t on the open list, add it to
                 // the open list. Make the current square
                 // the parent of this square. Record the
