@@ -12,6 +12,8 @@
 #define COL 20
 #define ROW 20
 
+#define DELAY 5
+
 wxBEGIN_EVENT_TABLE(cMain, wxMDIParentFrame)
 EVT_MENU(10001, cMain::OnMenuReset)
 EVT_MENU(10002, cMain::OnMenuExit)
@@ -85,7 +87,7 @@ void cMain::OnMenuReset(wxCommandEvent & evt)
 	cMain::m_dst = std::make_pair(19, 19);
 	cMain::m_arrayOfColours[0][0] = 3;
 	cMain::m_arrayOfColours[19][19] = 2;
-	//this->Refresh();
+	this->Refresh(false);
 }
 
 void cMain::OnButtonClick(wxCommandEvent & evt)
@@ -127,9 +129,7 @@ void cMain::OnButtonClick(wxCommandEvent & evt)
 
 	if(foo == 4)
 	{
-		Pair src = cMain::m_src;
-		Pair dest = cMain::m_dst;
-		aStarSearch(cMain::m_arrayOfColours, src, dest);
+		aStarSearch(cMain::m_arrayOfColours, cMain::GetSrc(), cMain::GetDst());
 	}
 	//wxWindow::Refresh();
 	this->Refresh(false);
@@ -225,7 +225,7 @@ void cMain::OnDraw(wxDC & dc)
 void cMain::OnPaint(wxPaintEvent & evt)
 {
 	wxBufferedPaintDC dc(this);
-
+	
 	this->PrepareDC(dc);
 	this->OnDraw(dc);
 }
@@ -340,19 +340,20 @@ void cMain::tracePath(cell cellDetails[][COL], Pair dest)
         Path.pop();
         printf("-> (%d,%d) ", p.first, p.second);
 	cMain::SetArray(p.first, p.second, 10);
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    	this->Update();
 	this->Refresh(false);
+	std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
+		
     }
  
     return;
 }
- 
+
 // A Function to find the shortest path between
 // a given source cell to a destination cell according
 // to A* Search Algorithm
 void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
 {
-
     // If the source is out of range
     if (isValid(src.first, src.second) == false) {
         printf("Source is invalid\n");
@@ -366,8 +367,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
     }
  
     // Either the source or the destination is blocked
-    if (isUnBlocked(grid, src.first, src.second) == false
-        || isUnBlocked(grid, dest.first, dest.second)
+    if (isUnBlocked(cMain::m_arrayOfColours, src.first, src.second) == false
+        || isUnBlocked(cMain::m_arrayOfColours, dest.first, dest.second)
                == false) {
         printf("Source or the destination is blocked\n");
         return;
@@ -379,7 +380,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
         printf("We are already at the destination\n");
         return;
     }
- 
+
     // Create a closed list and initialise it to false which
     // means that no cell has been included yet This closed
     // list is implemented as a boolean 2D array
@@ -482,11 +483,12 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
-            else if (closedList[i - 1][j] == false && isUnBlocked(grid, i - 1, j) == true) {
+            else if (closedList[i - 1][j] == false && isUnBlocked(cMain::m_arrayOfColours, i - 1, j) == true) {
 		
 		cMain::SetArray(i - 1, j, 11);
-		//std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		this->Update();
 		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
 		gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i - 1, j, dest);
                 fNew = gNew + hNew;
@@ -533,9 +535,12 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
-            else if (closedList[i + 1][j] == false && isUnBlocked(grid, i + 1, j) == true) {
+            else if (closedList[i + 1][j] == false && isUnBlocked(cMain::m_arrayOfColours, i + 1, j) == true) {
 
 		cMain::SetArray(i + 1, j, 11);    
+			this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
 		gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i + 1, j, dest);
                 fNew = gNew + hNew;
@@ -584,10 +589,13 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i][j + 1] == false
-                     && isUnBlocked(grid, i, j + 1)
+                     && isUnBlocked(cMain::m_arrayOfColours, i, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.0;
 	    	cMain::SetArray(i, j + 1, 11);		
+			this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
 		hNew = calculateHValue(i, j + 1, dest);
                 fNew = gNew + hNew;
  
@@ -636,10 +644,13 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i][j - 1] == false
-                     && isUnBlocked(grid, i, j - 1)
+                     && isUnBlocked(cMain::m_arrayOfColours, i, j - 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.0;
 	   	cMain::SetArray(i, j - 1, 11);		
+			this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
 		hNew = calculateHValue(i, j - 1, dest);
                 fNew = gNew + hNew;
  
@@ -690,10 +701,13 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i - 1][j + 1] == false
-                     && isUnBlocked(grid, i - 1, j + 1)
+                     && isUnBlocked(cMain::m_arrayOfColours, i - 1, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
 		cMain::SetArray(i - 1, j + 1, 11);		
+			this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
 		hNew = calculateHValue(i - 1, j + 1, dest);
                 fNew = gNew + hNew;
  
@@ -743,11 +757,14 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i - 1][j - 1] == false
-                     && isUnBlocked(grid, i - 1, j - 1)
+                     && isUnBlocked(cMain::m_arrayOfColours, i - 1, j - 1)
            == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i - 1, j - 1, dest);
 	    	cMain::SetArray(i - 1, j - 1, 11);		
+			this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
 		fNew = gNew + hNew;
  
                 // If it isn’t on the open list, add it to
@@ -794,13 +811,16 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i + 1][j + 1] == false
-                     && isUnBlocked(grid, i + 1, j + 1)
+                     && isUnBlocked(cMain::m_arrayOfColours, i + 1, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i + 1, j + 1, dest);
 		fNew = gNew + hNew;
             	cMain::SetArray(i + 1, j + 1, 11);		
-                // If it isn’t on the open list, add it to
+                	this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
+		// If it isn’t on the open list, add it to
                 // the open list. Make the current square
                 // the parent of this square. Record the
                 // f, g, and h costs of the square cell
@@ -845,13 +865,16 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i + 1][j - 1] == false
-                     && isUnBlocked(grid, i + 1, j - 1)
+                     && isUnBlocked(cMain::m_arrayOfColours, i + 1, j - 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i + 1, j - 1, dest);
                 fNew = gNew + hNew;
 		cMain::SetArray(i + 1, j - 1, 11);
-                // If it isn’t on the open list, add it to
+                	this->Update();
+		this->Refresh(false);
+		std::this_thread::sleep_for(std::chrono::milliseconds(DELAY));
+		// If it isn’t on the open list, add it to
                 // the open list. Make the current square
                 // the parent of this square. Record the
                 // f, g, and h costs of the square cell
@@ -881,10 +904,16 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
     // there is no way to destination cell (due to
     // blockages)
     if (foundDest == false)
+    {
         printf("Failed to find the Destination Cell\n");
  
     return;
+    }
+	
+	//wxWindow::Refresh();
+	this->Refresh(false);
 }
+
 /* 
 // Driver program to test above function
 int main()
