@@ -10,16 +10,12 @@
 * [Status](#status)
 
 ## General info
-This projects utilizes wxWidgets library for creation of GUI. The user can pick a starting point and an ending point and after hitting "Run" the algorithm will present the shortest path to an end if there exsits one.
+This projects utilizes wxWidgets library for creation of GUI. The user can pick a starting point and an ending point and after hitting "Run" the algorithm will present the shortest path to an end if there exsits one. Pathfinding algorithm taken from geeksforgeeks.com.
 
 ## Screenshots
-There will be a yt link here!
+Youtube presentation of project:
 
-![Alt text](https://i.ibb.co/wgXrh2S/first.png "Choosing ending and starting points")
-
-![Alt text](https://i.ibb.co/MNM4zhN/second.png "Placing obstacles")
-
-![Alt text](https://i.ibb.co/wsvYhr5/third.png "After running the algorithm")
+https://youtu.be/sA-Y8HqC4h0	
 
 ## Technologies
 * wxWidgets 3.0.5
@@ -33,7 +29,7 @@ Provided you have wxWidgets installed...
 
 ## Features
 To-do list:
-* Only thing left is the presentation of how the algorithm works specifically. So far it only shows the shortest path.
+* Code should be beautified, cleaned and refactorized
 
 ## Status
-Project is: _in progress_
+Project is: _finished_
