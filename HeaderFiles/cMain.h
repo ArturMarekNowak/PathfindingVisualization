@@ -6,7 +6,6 @@
 
 
 #define Dim 20
-#define COL 20
 
 // Creating a shortcut for int, int pair type
 typedef std::pair<int, int> Pair;
@@ -17,7 +16,7 @@ typedef std::pair<double, std::pair<int, int>> pPair;
 // A structure to hold the neccesary parameters
 struct cell {
     // Row and Column index of its parent
-    // Note that 0 <= i <= ROW-1 & 0 <= j <= COL-1
+    // Note that 0 <= i <= ROW-1 & 0 <= j <= Dim-1
     int parent_i, parent_j;
     // f = g + h
     double f, g, h;
@@ -25,15 +24,15 @@ struct cell {
 
 bool isValid(int row, int col);
 
-bool isUnBlocked(int grid[][COL], int row, int col);
+bool isUnBlocked(int grid[][Dim], int row, int col);
 
 bool isDestination(int row, int col, Pair dest);
 
 double calculateHValue(int row, int col, Pair dest);
 
-void tracePath(cell cellDetails[][COL], Pair dest);
+void tracePath(cell cellDetails[][Dim], Pair dest);
 
-void aStarSearch(int grid[][COL], Pair src, Pair dest);
+void aStarSearch(int grid[][Dim], Pair src, Pair dest);
 
 
 
@@ -42,12 +41,23 @@ class cMain : public wxMDIParentFrame
 	public: 
 		cMain();
 		~cMain();
-			
+
+		int (*GetWholeArray())[Dim];	
+
 		void SetColour(int & c);
 		void SetArray(int row, int col, int c);
 		void SetSrc(int i, int j);
 		void SetDst(int i, int j);
 		
+		int GetSrcFirst();
+		int GetSrcSecond();
+
+		int GetDstFirst();
+		int GetDstSecond();
+
+		const int GetGridDim();
+		const int GetPixelSize();		
+
 		int GetColour();
 		int GetArray(int row, int col);
 		Pair GetDst();
@@ -57,9 +67,9 @@ class cMain : public wxMDIParentFrame
 		static Pair m_src;
 		static Pair m_dst;
 		const int m_gridDim = Dim;
-		const int m_pixelSize = 20;		
+		const int m_pixelSize = Dim;		
 		static int m_colour;
-		static int m_arrayOfColours[20][20];
+		static int m_arrayOfColours[Dim][Dim];
 
 		wxToolBar *m_ToolBar = nullptr;
 		wxMenuBar *m_MenuBar = nullptr;
@@ -77,14 +87,14 @@ class cMain : public wxMDIParentFrame
 		
 		bool isValid(int row, int col);
 
-		bool isUnBlocked(int grid[][COL], int row, int col);
+		bool isUnBlocked(int grid[][Dim], int row, int col);
 
 		bool isDestination(int row, int col, Pair dest);
 
 		double calculateHValue(int row, int col, Pair dest);
 
-		void tracePath(cell cellDetails[][COL], Pair dest);
+		void tracePath(cell cellDetails[][Dim], Pair dest);
 
-		void aStarSearch(int grid[][COL], Pair src, Pair dest);
+		void aStarSearch(int grid[][Dim], Pair src, Pair dest);
 
 };

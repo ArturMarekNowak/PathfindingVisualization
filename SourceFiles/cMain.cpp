@@ -6,11 +6,8 @@
 #include <thread>
 #include <chrono>
 
-#define pixelOffset 5 * m_gridDim 
+#define pixelOffset 5 * cMain::GetGridDim() 
 #define blockOffset 5
-
-#define COL 20
-#define ROW 20
 
 #define DELAY 5
 
@@ -76,17 +73,18 @@ cMain::~cMain()
 
 void cMain::OnMenuReset(wxCommandEvent & evt)
 {
-	for(int i = 0; i < m_gridDim; i++)
+	for(int i = 0; i < cMain::GetGridDim(); i++)
 	{
-		for(int j = 0; j < m_gridDim; j++)
+		for(int j = 0; j < cMain::GetGridDim(); j++)
 		{
 			cMain::SetArray(i, j, 0); 
 		}
 	}
-	cMain::m_src = std::make_pair(0, 0);
-	cMain::m_dst = std::make_pair(19, 19);
-	cMain::m_arrayOfColours[0][0] = 3;
-	cMain::m_arrayOfColours[19][19] = 2;
+	cMain::SetSrc(0, 0);
+	cMain::SetDst(19, 19);
+	cMain::SetArray(0, 0, 3);
+	cMain::SetArray(19, 19, 2);
+
 	this->Refresh(false);
 }
 
@@ -97,15 +95,15 @@ void cMain::OnButtonClick(wxCommandEvent & evt)
 	if(foo == 0)
 	{
 	
-		for(int i = 0; i < m_gridDim; i++)
-			for(int j = 0; j < m_gridDim; j++)
+		for(int i = 0; i < cMain::GetGridDim(); i++)
+			for(int j = 0; j < cMain::GetGridDim(); j++)
 			{
 				cMain::SetArray(i, j, 0); 
 			}
-		cMain::m_src = std::make_pair(0, 0);
-		cMain::m_dst = std::make_pair(19, 19);
-		cMain::m_arrayOfColours[0][0] = 3;
-		cMain::m_arrayOfColours[19][19] = 2;
+		cMain::SetSrc(0, 0);	
+		cMain::SetDst(19, 19);
+		cMain::SetArray(0, 0, 3);
+		cMain::SetArray(19, 19, 2);
 	}
 
 
@@ -129,9 +127,8 @@ void cMain::OnButtonClick(wxCommandEvent & evt)
 
 	if(foo == 4)
 	{
-		aStarSearch(cMain::m_arrayOfColours, cMain::GetSrc(), cMain::GetDst());
+		aStarSearch(cMain::GetWholeArray(), cMain::GetSrc(), cMain::GetDst());
 	}
-	//wxWindow::Refresh();
 	this->Refresh(false);
 }
 
@@ -144,21 +141,21 @@ void cMain::OnMenuExit(wxCommandEvent & evt)
 
 void cMain::OnMouseClick(wxMouseEvent & evt)
 {
-	int xCoord = evt.GetX() / m_pixelSize - blockOffset;
-	int yCoord = evt.GetY() / m_pixelSize - blockOffset;
+	int xCoord = evt.GetX() / cMain::GetPixelSize() - blockOffset;
+	int yCoord = evt.GetY() / cMain::GetPixelSize() - blockOffset;
 	//std::cout << "X: " << xCoord << " Y: " << yCoord << " ID: " << cMain::GetColour() << std::endl;
-	if(xCoord >= 0 && xCoord < m_gridDim && yCoord >= 0 && yCoord < m_gridDim)
+	if(xCoord >= 0 && xCoord < cMain::GetGridDim() && yCoord >= 0 && yCoord < cMain::GetGridDim())
 	{
 		cMain::SetArray(xCoord, yCoord, cMain::GetColour());
 		if(cMain::GetColour() == 3)
 		{
-			cMain::SetArray(m_src.first, m_src.second, 0);
+			cMain::SetArray(cMain::GetSrcFirst(), cMain::GetSrcSecond(), 0);
 			cMain::SetSrc(xCoord, yCoord);
 		}
 		
 		if(cMain::GetColour() == 2)
 		{
-			cMain::SetArray(m_dst.first, m_dst.second, 0);	
+			cMain::SetArray(cMain::GetDstFirst(), cMain::GetDstSecond(), 0);	
 			cMain::SetDst(xCoord, yCoord);
 		}
 	}
@@ -177,8 +174,8 @@ void cMain::OnDraw(wxDC & dc)
 
 	dc.SetPen(pen);
 
-	for(int i = 0; i < m_gridDim; i++)
-		for(int j = 0; j < m_gridDim; j++)
+	for(int i = 0; i < cMain::GetGridDim(); i++)
+		for(int j = 0; j < cMain::GetGridDim(); j++)
 		{
 			//std::cout << cMain::GetArray(i, j);
 			//Obstacle
@@ -217,7 +214,7 @@ void cMain::OnDraw(wxDC & dc)
 			}
 
 			dc.SetBrush(brush);
-			dc.DrawRectangle(i * m_gridDim + pixelOffset, j * m_gridDim + pixelOffset, m_pixelSize, m_pixelSize);
+			dc.DrawRectangle(i * cMain::GetGridDim() + pixelOffset, j * cMain::GetGridDim() + pixelOffset, cMain::GetPixelSize(), cMain::GetPixelSize());
 		}
 
 }
@@ -231,6 +228,26 @@ void cMain::OnPaint(wxPaintEvent & evt)
 }
 
 //Setters and Getters
+int cMain::GetSrcFirst()
+{
+	return m_src.first;
+}
+
+int cMain::GetDstFirst()
+{
+	return m_dst.first;
+}
+
+int cMain::GetSrcSecond()
+{
+	return m_src.second;
+}
+
+int cMain::GetDstSecond()
+{
+	return m_dst.second;
+}
+
 void cMain::SetSrc(int i, int j)
 {
 	cMain::m_src = std::make_pair(i, j);
@@ -271,6 +288,20 @@ Pair cMain::GetDst()
 	return m_dst;
 }
 
+int (*cMain::GetWholeArray())[20]
+{
+	return m_arrayOfColours;
+}
+
+const int cMain::GetGridDim()
+{
+	return m_gridDim;
+}
+
+const int cMain::GetPixelSize()
+{
+	return m_pixelSize;
+}
 
 ////////////////A* algorithm/////////////////
 
@@ -281,16 +312,16 @@ bool cMain::isValid(int row, int col)
 {
     // Returns true if row number and column number
     // is in range
-    return (row >= 0) && (row < ROW) && (col >= 0)
-           && (col < COL);
+    return (row >= 0) && (row < Dim) && (col >= 0)
+           && (col < Dim);
 }
  
 // A Utility Function to check whether the given cell is
 // blocked or not
-bool cMain::isUnBlocked(int grid[][COL], int row, int col)
+bool cMain::isUnBlocked(int grid[][Dim], int row, int col)
 {
     // Returns true if the cell is not blocked else false
-    if (grid[row][col] == 1) //<------------------------------------------CHANGED HERE
+    if (grid[row][col]== 1) //<------------------------------------------CHANGED HERE
         return (false);
     else
         return (true);
@@ -317,7 +348,7 @@ double cMain::calculateHValue(int row, int col, Pair dest)
  
 // A Utility Function to trace the path from the source
 // to destination
-void cMain::tracePath(cell cellDetails[][COL], Pair dest)
+void cMain::tracePath(cell cellDetails[][Dim], Pair dest)
 {
     printf("\nThe Path is ");
     int row = dest.first;
@@ -352,7 +383,7 @@ void cMain::tracePath(cell cellDetails[][COL], Pair dest)
 // A Function to find the shortest path between
 // a given source cell to a destination cell according
 // to A* Search Algorithm
-void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
+void cMain::aStarSearch(int grid[][Dim], Pair src, Pair dest)
 {
     // If the source is out of range
     if (isValid(src.first, src.second) == false) {
@@ -367,8 +398,8 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
     }
  
     // Either the source or the destination is blocked
-    if (isUnBlocked(cMain::m_arrayOfColours, src.first, src.second) == false
-        || isUnBlocked(cMain::m_arrayOfColours, dest.first, dest.second)
+    if (isUnBlocked(grid , src.first, src.second) == false
+        || isUnBlocked(grid , dest.first, dest.second)
                == false) {
         printf("Source or the destination is blocked\n");
         return;
@@ -384,17 +415,17 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
     // Create a closed list and initialise it to false which
     // means that no cell has been included yet This closed
     // list is implemented as a boolean 2D array
-    bool closedList[ROW][COL];
+    bool closedList[Dim][Dim];
     memset(closedList, false, sizeof(closedList));
  
     // Declare a 2D array of structure to hold the details
     // of that cell
-    cell cellDetails[ROW][COL];
+    cell cellDetails[Dim][Dim];
  
     int i, j;
  
-    for (i = 0; i < ROW; i++) {
-        for (j = 0; j < COL; j++) {
+    for (i = 0; i < Dim; i++) {
+        for (j = 0; j < Dim; j++) {
             cellDetails[i][j].f = FLT_MAX;
             cellDetails[i][j].g = FLT_MAX;
             cellDetails[i][j].h = FLT_MAX;
@@ -416,7 +447,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
      <f, <i, j>>
      where f = g + h,
      and i, j are the row and column index of that cell
-     Note that 0 <= i <= ROW-1 & 0 <= j <= COL-1
+     Note that 0 <= i <= Dim-1 & 0 <= j <= Dim-1
      This open list is implenented as a set of pair of
      pair.*/
     std::set<pPair> openList;
@@ -483,7 +514,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
-            else if (closedList[i - 1][j] == false && isUnBlocked(cMain::m_arrayOfColours, i - 1, j) == true) {
+            else if (closedList[i - 1][j] == false && isUnBlocked(grid , i - 1, j) == true) {
 		
 		cMain::SetArray(i - 1, j, 11);
 		this->Update();
@@ -535,7 +566,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
-            else if (closedList[i + 1][j] == false && isUnBlocked(cMain::m_arrayOfColours, i + 1, j) == true) {
+            else if (closedList[i + 1][j] == false && isUnBlocked(grid , i + 1, j) == true) {
 
 		cMain::SetArray(i + 1, j, 11);    
 			this->Update();
@@ -589,7 +620,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i][j + 1] == false
-                     && isUnBlocked(cMain::m_arrayOfColours, i, j + 1)
+                     && isUnBlocked(grid , i, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.0;
 	    	cMain::SetArray(i, j + 1, 11);		
@@ -644,7 +675,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i][j - 1] == false
-                     && isUnBlocked(cMain::m_arrayOfColours, i, j - 1)
+                     && isUnBlocked(grid , i, j - 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.0;
 	   	cMain::SetArray(i, j - 1, 11);		
@@ -701,7 +732,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i - 1][j + 1] == false
-                     && isUnBlocked(cMain::m_arrayOfColours, i - 1, j + 1)
+                     && isUnBlocked(grid , i - 1, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
 		cMain::SetArray(i - 1, j + 1, 11);		
@@ -757,7 +788,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i - 1][j - 1] == false
-                     && isUnBlocked(cMain::m_arrayOfColours, i - 1, j - 1)
+                     && isUnBlocked(grid , i - 1, j - 1)
            == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i - 1, j - 1, dest);
@@ -811,7 +842,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i + 1][j + 1] == false
-                     && isUnBlocked(cMain::m_arrayOfColours, i + 1, j + 1)
+                     && isUnBlocked(grid , i + 1, j + 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i + 1, j + 1, dest);
@@ -865,7 +896,7 @@ void cMain::aStarSearch(int grid[][COL], Pair src, Pair dest)
             // list or if it is blocked, then ignore it.
             // Else do the following
             else if (closedList[i + 1][j - 1] == false
-                     && isUnBlocked(cMain::m_arrayOfColours, i + 1, j - 1)
+                     && isUnBlocked(grid , i + 1, j - 1)
                             == true) {
                 gNew = cellDetails[i][j].g + 1.414;
                 hNew = calculateHValue(i + 1, j - 1, dest);
@@ -921,7 +952,7 @@ int main()
     //Description of the Grid-
     // 0--> The cell is not blocked
     // 1--> The cell is blocked    
-    int grid[ROW][COL]
+    int grid[Dim][Dim]
         = { { 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
             { 1, 1, 1, 0, 1, 1, 1, 0, 1, 1 },
             { 1, 1, 1, 0, 1, 1, 0, 1, 0, 1 },
