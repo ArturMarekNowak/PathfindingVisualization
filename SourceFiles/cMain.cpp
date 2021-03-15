@@ -21,14 +21,14 @@ EVT_LEFT_DOWN(cMain::OnMouseClick)
 wxEND_EVENT_TABLE()
 
 int cMain::m_colour = 0;
-int cMain::m_arrayOfColours[20][20] = {0};
+int cMain::m_arrayOfColours[Dim][Dim] = {0};
 Pair cMain::m_src = std::make_pair(0, 0);
-Pair cMain::m_dst = std::make_pair(19, 19);
+Pair cMain::m_dst = std::make_pair(Dim - 1, Dim - 1);
 
 cMain::cMain() : wxMDIParentFrame(nullptr, wxID_ANY, "Pathfinding Visualization with WxWidgets", wxPoint(600, 300), wxSize(610, 710))
 {
 	cMain::m_arrayOfColours[0][0] = 3;
-	cMain::m_arrayOfColours[19][19] = 2;
+	cMain::m_arrayOfColours[Dim - 1][Dim - 1] = 2;
 	
 	wxPanel* p = new wxPanel(this);
   	//p->SetBackgroundColour(*wxRED);
@@ -81,9 +81,9 @@ void cMain::OnMenuReset(wxCommandEvent & evt)
 		}
 	}
 	cMain::SetSrc(0, 0);
-	cMain::SetDst(19, 19);
+	cMain::SetDst(Dim - 1, Dim - 1);
 	cMain::SetArray(0, 0, 3);
-	cMain::SetArray(19, 19, 2);
+	cMain::SetArray(Dim - 1, Dim - 1, 2);
 
 	this->Refresh(false);
 }
@@ -101,9 +101,9 @@ void cMain::OnButtonClick(wxCommandEvent & evt)
 				cMain::SetArray(i, j, 0); 
 			}
 		cMain::SetSrc(0, 0);	
-		cMain::SetDst(19, 19);
+		cMain::SetDst(Dim - 1, Dim - 1);
 		cMain::SetArray(0, 0, 3);
-		cMain::SetArray(19, 19, 2);
+		cMain::SetArray(Dim - 1, Dim - 1, 2);
 	}
 
 
@@ -288,7 +288,7 @@ Pair cMain::GetDst()
 	return m_dst;
 }
 
-int (*cMain::GetWholeArray())[20]
+int (*cMain::GetWholeArray())[Dim]
 {
 	return m_arrayOfColours;
 }
